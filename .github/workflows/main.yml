@@ -1,0 +1,52 @@
+name: Phoenix V100 (Linux Turbo)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */4 * * *' # ⚠️ Starts every 4 hours
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  run-loop:
+    runs-on: ubuntu-latest # 🐧 SWITCHED TO LINUX
+    timeout-minutes: 350 
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install Dependencies
+      run: |
+        pip install selenium selenium-stealth
+        # Chrome is pre-installed on Ubuntu runners, no extra setup needed.
+
+    - name: 🔥 Run Phoenix Engine (Linux Loop)
+      env:
+        PYTHONIOENCODING: utf-8
+        INSTA_COOKIE: ${{ secrets.INSTA_COOKIE }}
+        TARGET_THREAD_ID: ${{ secrets.TARGET_THREAD_ID }}
+        MESSAGES: ${{ secrets.MESSAGES }}
+      run: |
+        # 🐧 BASH INFINITE LOOP
+        # This replaces the Windows PowerShell loop
+        while true; do
+          echo "🚀 Starting Linux Turbo Engine..."
+          
+          # Run Python and catch exit codes
+          if python main.py; then
+            echo "✅ Script finished naturally."
+          else
+            echo "❌ Script crashed internally."
+          fi
+          
+          echo "⚠️ Crash/Exit Detected. Respawning in 10 seconds..."
+          sleep 10
+        done
